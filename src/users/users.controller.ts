@@ -1,11 +1,10 @@
-import { Body, Controller, Get, Headers, Post, UseGuards, Param, Query } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { ApiTags, ApiOkResponse, ApiOperation, ApiBearerAuth, ApiUnauthorizedResponse } from '@nestjs/swagger';
-import { AuthGuard } from 'src/guards/auth.guard';
-import { HttpException } from '@nestjs/common';
+import { Controller, Get, Headers, Param, Query, UseGuards } from '@nestjs/common'
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger'
+import { AuthGuard } from 'src/guards/auth.guard'
+import { UsersService } from './users.service'
 
 @ApiTags('Users')
-@Controller('/api/v1/users')
+@Controller('/api/users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -41,11 +40,8 @@ export class UsersController {
   @ApiOperation({ summary: 'Получение одного пользователя' })
   @ApiOkResponse({ description: 'Успешное получение одного пользователя' })
   @Get('/:id')
-  findOne(@Param('id') id: string) {
-    if (!isValidObjectId(id)) {
-      throw new HttpException('Invalid user ID format.', 500);
-    }
-    return this.usersService.getOneUser(id);
+  findOne(@Param('id') id: number) {
+    return this.usersService.getOneUser(Number(id));
   }
 }
 

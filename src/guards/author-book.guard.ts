@@ -1,7 +1,7 @@
-import { CanActivate, ExecutionContext, HttpException, Injectable } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { Request } from 'express';
-import { PrismaService } from 'src/prisma.service';
+import { CanActivate, ExecutionContext, HttpException, Injectable } from '@nestjs/common'
+import { Reflector } from '@nestjs/core'
+import { Request } from 'express'
+import { PrismaService } from 'src/prisma.service'
 
 @Injectable()
 export class AuthorBookGuard implements CanActivate {
@@ -13,7 +13,7 @@ export class AuthorBookGuard implements CanActivate {
 
         if (!tgId) throw new HttpException({ message: 'No authorized' }, 401);
 
-        const session = await this.prisma.users_sessions.findFirst({
+        const session = await this.prisma.userSession.findFirst({
             where: {
                 tgId: Number(tgId)
             }
@@ -23,7 +23,7 @@ export class AuthorBookGuard implements CanActivate {
             throw new HttpException({ message: 'Session not found' }, 401);
         }
 
-        const user = await this.prisma.users.findFirst({
+        const user = await this.prisma.user.findFirst({
             where: { id: session.userId }
         });
 
@@ -31,9 +31,9 @@ export class AuthorBookGuard implements CanActivate {
             throw new HttpException({ message: 'User not found' }, 404);
         }
 
-        const book = await this.prisma.books.findFirst({
+        const book = await this.prisma.book.findFirst({
             where: {
-                id: req.params.id
+                id: Number(req.params.id)
             }
         });
 

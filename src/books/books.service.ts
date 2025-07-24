@@ -1,7 +1,7 @@
-import { HttpException, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
-import { CreateBookDto } from './dto/create-book.dto';
-import { UpdateBookDto } from './dto/update-book.dto';
+import { HttpException, Injectable } from '@nestjs/common'
+import { PrismaService } from 'src/prisma.service'
+import { CreateBookDto } from './dto/create-book.dto'
+import { UpdateBookDto } from './dto/update-book.dto'
 
 @Injectable()
 export class BooksService {
@@ -9,7 +9,7 @@ export class BooksService {
 
     async getAll() {
         try {
-            const books = await this.prisma.books.findMany()
+            const books = await this.prisma.book.findMany()
             return books
         } catch (error) {
             throw new HttpException({error}, 500)
@@ -17,9 +17,9 @@ export class BooksService {
         
     }
 
-    async getOne(id: string) {
+    async getOne(id: number) {
         try {
-            const book = await this.prisma.books.findUnique({
+            const book = await this.prisma.book.findUnique({
                 where: {id}
             })
             return book
@@ -31,12 +31,12 @@ export class BooksService {
 
     async getMyBooks(tgId: number) {
         try {
-            const session = await this.prisma.users_sessions.findFirst({
+            const session = await this.prisma.userSession.findFirst({
                 where: {
                     tgId
                 }
             })
-            const books = await this.prisma.books.findMany({
+            const books = await this.prisma.book.findMany({
                 where: {userId: session.userId}
             })
             return books
@@ -46,10 +46,10 @@ export class BooksService {
         
     }
 
-    async getMyTopBooks(userId: string) {
+    async getMyTopBooks(userId: number) {
         try {
 
-            const books = await this.prisma.books.findMany({
+            const books = await this.prisma.book.findMany({
                 where: {userId},
                 orderBy: {
                     pageCount: 'desc'
@@ -62,21 +62,21 @@ export class BooksService {
 
     }
 
-    async updateOne(id: string, updateBookDto: UpdateBookDto, tgId: number) {
+    async updateOne(id: number, updateBookDto: UpdateBookDto, tgId: number) {
         try {
-            const book = await this.prisma.books.findFirst({ where: { id } });
+            const book = await this.prisma.book.findFirst({ where: { id } });
             if (!book) {
             // Обработка случая, если книга не найдена (например, вернуть ошибку)
             return null; // Или вернуть какое-то значение, обозначающее неудачу
             }
         
-            const updatedBook = await this.prisma.books.update({
+            const updatedBook = await this.prisma.book.update({
             where: { id },
             data: updateBookDto, // Обновляем книгу с данными из updateBookDto
             });
         
             // Получаем информацию о пользователе, связанном с сессией
-            const session = await this.prisma.users_sessions.findFirst({
+            const session = await this.prisma.userSession.findFirst({
             where: { tgId },
             });
         
@@ -86,7 +86,7 @@ export class BooksService {
             }
         
             // Получаем информацию о пользователе, связанном с сессией
-            const user = await this.prisma.users.findFirst({
+            const user = await this.prisma.user.findFirst({
             where: { id: session.userId },
             });
         
@@ -96,7 +96,7 @@ export class BooksService {
             }
         
             // Обновляем количество страниц, прочитанных пользователем
-            await this.prisma.users.update({
+            await this.prisma.user.update({
             where: { id: user.id },
             data: {
                 pagesCount:
@@ -115,23 +115,23 @@ export class BooksService {
 
     async createBook(createBookDto: CreateBookDto, tgId: number) {
         try {
-            const user_session = await this.prisma.users_sessions.findFirst({
+            const user_session = await this.prisma.userSession.findFirst({
                 where: {
                     tgId
                 }
             })
-            const updBook = await this.prisma.books.create({
+            const updBook = await this.prisma.book.create({
                 data: {
                     ...createBookDto,
                     userId: user_session.userId
                 }
             })
-            const user = await this.prisma.users.findFirst({
+            const user = await this.prisma.user.findFirst({
                 where: {
                     id: user_session.userId
                 }
             })
-            const updUser = await this.prisma.users.update({
+            const updUser = await this.prisma.user.update({
                 where: {
                     id: user_session.userId
                 },
@@ -147,20 +147,20 @@ export class BooksService {
         
     }
 
-    async deleteBook(id: string, tgId: number) {
+    async deleteBook(id: number, tgId: number) {
         try {
-            const thisBook = await this.prisma.books.findFirst({
+            const thisBook = await this.prisma.book.findFirst({
                 where: {
                     id
                 }
             })
-            const user = await this.prisma.users.findFirst({
+            const user = await this.prisma.user.findFirst({
                 where: {
                     id: thisBook.userId
                 }
             })
             
-            const updUser = await this.prisma.users.update({
+            const updUser = await this.prisma.user.update({
                 where: {
                     id: thisBook.userId
                 },
@@ -169,7 +169,7 @@ export class BooksService {
                     booksCount: user.booksCount - 1
                 }
             })
-            const book = await this.prisma.books.delete({
+            const book = await this.prisma.book.delete({
                 where: { id }
             })
             return book

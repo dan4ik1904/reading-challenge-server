@@ -1,33 +1,38 @@
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
+  engineType = "binary"
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-model books {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
+model Book {
+  id        Int    @id @default(autoincrement())
   author    String
   name      String
   pageCount Int
-  ratting   Int
+  rating    Int // Было "ratting" (исправлено)
   review    String
-  userId    String
+  userId    Int // Теперь Int вместо String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model users {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  booksCount Int      @default(0)
+model User {
+  id         Int           @id @default(autoincrement())
+  booksCount Int           @default(0)
   className  String
   fullName   String
-  pagesCount Int     @default(0)
-  role       String  @default("user")
+  pagesCount Int           @default(0)
+  role       String        @default("user")
+  books      Book[] // У пользователя много книг
+  sessions   UserSession[] // У пользователя много сессий
 }
 
-model users_sessions {
-  id         String @id @default(auto()) @map("_id") @db.ObjectId
-  userId     String
-  tgId       Int
+model UserSession {
+  id     Int  @id @default(autoincrement())
+  userId Int // Теперь Int вместо String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tgId   Int? // Опциональный Telegram ID
 }

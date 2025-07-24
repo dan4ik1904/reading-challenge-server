@@ -28,7 +28,7 @@ export class UpdateBookDto {
     })
     @IsOptional()
     @IsNumber()
-    ratting: number
+    rating: number
 
     @ApiProperty({
         required: false

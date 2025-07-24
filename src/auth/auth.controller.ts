@@ -1,15 +1,14 @@
-import { Body, Controller, Get, Headers, Patch, Post, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { AuthDto } from './dto/auth.dto';
-import { AuthGuard } from 'src/guards/auth.guard';
-import { UpdateMeDto } from './dto/update-me.dto';
-import { BooksService } from 'src/books/books.service';
-import { ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
-import { AuthorBookGuard } from 'src/guards/author-book.guard';
+import { Body, Controller, Get, Headers, Patch, Post, UseGuards } from '@nestjs/common'
+import { ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger'
+import { BooksService } from 'src/books/books.service'
+import { AuthGuard } from 'src/guards/auth.guard'
+import { AuthService } from './auth.service'
+import { AuthDto } from './dto/auth.dto'
+import { UpdateMeDto } from './dto/update-me.dto'
 
 
 @ApiTags('Auth')
-@Controller('/api/v1/auth')
+@Controller('/api/auth')
 export class AuthController {
     constructor(private readonly authService: AuthService,
                 private readonly booksService: BooksService    

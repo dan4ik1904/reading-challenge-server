@@ -1,6 +1,6 @@
-import { CanActivate, ExecutionContext, HttpException, Injectable } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { PrismaService } from 'src/prisma.service';
+import { CanActivate, ExecutionContext, HttpException, Injectable } from '@nestjs/common'
+import { Reflector } from '@nestjs/core'
+import { PrismaService } from 'src/prisma.service'
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -13,7 +13,7 @@ export class AuthGuard implements CanActivate {
     if (!tgId) throw new HttpException({message: 'No authorizade'}, 401);
 
     // Проверяем наличие сессии пользователя и сразу возвращаем результат
-    return !!(await this.prisma.users_sessions.findFirst({
+    return !!(await this.prisma.userSession.findFirst({
       where: { tgId: Number(tgId) },
     }));
   }

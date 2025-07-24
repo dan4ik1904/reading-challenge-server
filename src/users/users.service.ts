@@ -1,5 +1,5 @@
-import { HttpException, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
+import { HttpException, Injectable } from '@nestjs/common'
+import { PrismaService } from 'src/prisma.service'
 
 @Injectable()
 export class UsersService {
@@ -9,12 +9,12 @@ export class UsersService {
 
     async getUserByTgId(tgId: number) {
         try {
-            const session = await this.prisma.users_sessions.findFirst({
+            const session = await this.prisma.userSession.findFirst({
                 where: {
                     tgId
                 }
             })
-            const user = await this.prisma.users.findFirst({
+            const user = await this.prisma.user.findFirst({
                 where: {
                     id: session.userId
                 }
@@ -28,7 +28,7 @@ export class UsersService {
 
     async findAll() {
         try {
-            const users = await this.prisma.users.findMany()
+            const users = await this.prisma.user.findMany()
             console.log(users)
             return users
         } catch (error) {
@@ -44,7 +44,7 @@ export class UsersService {
         }
     
         try {
-            const users = await this.prisma.users.findMany({
+            const users = await this.prisma.user.findMany({
                 orderBy: [
                     { pagesCount: 'desc' },
                     { id: 'asc' } // Сортировка по id для предотвращения повторений
@@ -64,7 +64,7 @@ export class UsersService {
     async getClassmates(tgId: number) {
         try {
             const user = await this.getUserByTgId(tgId)
-            const users = this.prisma.users.findMany({
+            const users = this.prisma.user.findMany({
                 where: {
                     className: user.className
                 },
@@ -79,9 +79,9 @@ export class UsersService {
         
     }
 
-    async getOneUser(id: string) {
+    async getOneUser(id: number) {
         try {
-            const user = await this.prisma.users.findFirst({
+            const user = await this.prisma.user.findFirst({
                 where: {
                     id: id
                 }

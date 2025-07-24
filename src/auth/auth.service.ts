@@ -1,7 +1,7 @@
-import { HttpException, Injectable } from '@nestjs/common';
-import { AuthDto } from './dto/auth.dto';
-import { PrismaService } from 'src/prisma.service';
-import { UpdateMeDto } from './dto/update-me.dto';
+import { HttpException, Injectable } from '@nestjs/common'
+import { PrismaService } from 'src/prisma.service'
+import { AuthDto } from './dto/auth.dto'
+import { UpdateMeDto } from './dto/update-me.dto'
 
 
 @Injectable()
@@ -12,7 +12,7 @@ export class AuthService {
     async auth(authDto: AuthDto) {
         try {
             // Найти пользователя по полям fullName и className
-            const user = await this.prisma.users.findFirst({
+            const user = await this.prisma.user.findFirst({
                 where: {
                     fullName: authDto.fullName,
                     className: authDto.className,
@@ -20,7 +20,7 @@ export class AuthService {
             });
     
             // Если пользователь не найден, создаем нового
-            const createdUser = user || await this.prisma.users.create({
+            const createdUser = user || await this.prisma.user.create({
                 data: {
                     className: authDto.className,
                     fullName: authDto.fullName,
@@ -28,7 +28,7 @@ export class AuthService {
             });
     
             // Проверяем наличие существующих сессий
-            const existingSession = await this.prisma.users_sessions.findFirst({
+            const existingSession = await this.prisma.userSession.findFirst({
                 where: { userId: createdUser.id },
             });
     
@@ -36,7 +36,7 @@ export class AuthService {
                 throw new HttpException({ message: 'У пользователя уже есть активная сессия.' }, 409); // 409 Конфликт
             }
     
-            await this.prisma.users_sessions.create({
+            await this.prisma.userSession.create({
                 data: {
                     tgId: authDto.tgId,
                     userId: createdUser.id,
@@ -54,14 +54,14 @@ export class AuthService {
     }
 
     async getMe(tgId: number) {
-        const session = await this.prisma.users_sessions.findFirst({
+        const session = await this.prisma.userSession.findFirst({
             where: {
                 tgId: Number(tgId)
             }
         })
         if(!session) return {auth: false}
 
-        const user = await this.prisma.users.findFirst({
+        const user = await this.prisma.user.findFirst({
             where: {
                 id: session.userId
             }
@@ -71,17 +71,17 @@ export class AuthService {
 
     async getMySessions(tgId: number) {
         try {
-            const session = await this.prisma.users_sessions.findFirst({
+            const session = await this.prisma.userSession.findFirst({
                 where: {
                     tgId: Number(tgId)
                 }
             })
-            const user = await this.prisma.users.findFirst({
+            const user = await this.prisma.user.findFirst({
                 where: {
                     id: session.userId
                 }
             })
-            const sessions = await this.prisma.users_sessions.findMany({
+            const sessions = await this.prisma.userSession.findMany({
                 where: {
                     userId: user.id
                 }
@@ -94,19 +94,19 @@ export class AuthService {
     }
 
     async updateMe(tgId: number, updateMeDto: UpdateMeDto) {
-        await this.prisma.users_sessions.findFirst({
+        await this.prisma.userSession.findFirst({
             where: {tgId}
         })
     }
 
     async authLogout(tgId: number) {
         try {
-            const session = await this.prisma.users_sessions.findFirst({
+            const session = await this.prisma.userSession.findFirst({
                 where: {
                     tgId
                 }
             })
-            const sessionDelete = await this.prisma.users_sessions.delete({
+            const sessionDelete = await this.prisma.userSession.delete({
                 where: {
                     id: session.id
                 }

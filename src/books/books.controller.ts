@@ -1,13 +1,13 @@
-import { Body, Controller, Delete, Get, Headers, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { BooksService } from './books.service';
-import { AuthGuard } from 'src/guards/auth.guard';
-import { CreateBookDto } from './dto/create-book.dto';
-import { UpdateBookDto } from './dto/update-book.dto';
-import { AuthorBookGuard } from 'src/guards/author-book.guard';
-import { ApiTags, ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, Headers, Param, Patch, Post, UseGuards } from '@nestjs/common'
+import { ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger'
+import { AuthGuard } from 'src/guards/auth.guard'
+import { AuthorBookGuard } from 'src/guards/author-book.guard'
+import { BooksService } from './books.service'
+import { CreateBookDto } from './dto/create-book.dto'
+import { UpdateBookDto } from './dto/update-book.dto'
 
 @ApiTags('Books')
-@Controller('/api/v1/books')
+@Controller('/api/books')
 export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
@@ -24,14 +24,14 @@ export class BooksController {
   @ApiUnauthorizedResponse({ description: 'Не авторизован' })
   @Get('/top/:userId')
   getMyTopBooks(@Param('userId') userId: string) {
-    return this.booksService.getMyTopBooks(userId)
+    return this.booksService.getMyTopBooks(Number(userId))
   }
 
   @ApiOperation({ summary: 'Получение книги по ID' })
   @ApiOkResponse({ description: 'Успешное получение книги' })
   @Get("/:id")
   getOne(@Param('id') id: string) {
-    return this.booksService.getOne(id)
+    return this.booksService.getOne(Number(id))
   }
 
   @ApiBearerAuth()
@@ -44,7 +44,7 @@ export class BooksController {
   @Patch('/:id')
   updateOne(@Param('id') id: string, @Body() updateBookDto: UpdateBookDto, @Headers('Authorization') tgId: string) {
     const tgIdNumber = Number(tgId)
-    return this.booksService.updateOne(id, updateBookDto, tgIdNumber)
+    return this.booksService.updateOne(Number(id), updateBookDto, tgIdNumber)
   }
 
   @ApiBearerAuth()
@@ -55,7 +55,7 @@ export class BooksController {
   @Delete('/:id')
   deleteOne(@Param('id') id: string, @Headers('Authorization') tgId: string) {
     const tgIdNumber = Number(tgId)
-    return this.booksService.deleteBook(id, tgIdNumber)
+    return this.booksService.deleteBook(Number(id), tgIdNumber)
   }
 
   @ApiBearerAuth()
